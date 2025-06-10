@@ -3,6 +3,8 @@ package edu.pucmm;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 import edu.pucmm.exception.DuplicateEmployeeException;
@@ -56,6 +58,14 @@ public class EmployeeManagerTest {
         assertEquals(90000, seniorDeveloper.getMaxSalary());
         seniorDeveloper.setId("2");
         assertEquals("2", seniorDeveloper.getId());
+        assertNotEquals(employee1, null);
+        assertNotEquals(employee1, "otro tipo");
+        Employee diffId = new Employee("X", "Otro", juniorDeveloper, 40000);
+        assertNotEquals(employee1, diffId);
+        assertNotEquals(juniorDeveloper, null);
+        assertNotEquals(juniorDeveloper, "otro tipo");
+        Position diffPosId = new Position("X", "Otro", 100, 200);
+        assertNotEquals(juniorDeveloper, diffPosId);
     }
 
     @Test
@@ -197,5 +207,17 @@ public class EmployeeManagerTest {
         // - Intentar agregar employee1 nuevamente al employeeManager.
         // - Verificar que se lanza una DuplicateEmployeeException.
         assertThrows(DuplicateEmployeeException.class, () -> employeeManager.addEmployee(employee1));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "1,Junior Developer,30000,50000,40000,true",
+        "1,Junior Developer,30000,50000,29999,false",
+        "2,Senior Developer,60000,90000,70000,true",
+        "2,Senior Developer,60000,90000,95000,false"
+    })
+    void testIsSalaryValidForPositionParameterized(String id, String name, double min, double max, double salary, boolean expected) {
+        Position position = new Position(id, name, min, max);
+        assertEquals(expected, employeeManager.isSalaryValidForPosition(position, salary));
     }
 }
